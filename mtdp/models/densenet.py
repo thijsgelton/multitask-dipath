@@ -59,5 +59,5 @@ def build_densenet(pretrained=False, arch="densenet201", model_class=NoHeadDense
             state_dict = clean_state_dict(state_dict, prefix="features.", filter=lambda k: not k.startswith("heads."))
         else:
             raise ValueError("Unknown pre-training source")
-        model.load_state_dict(state_dict)
+        model.load_state_dict(state_dict, strict=False)
     return model
