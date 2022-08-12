@@ -1,3 +1,4 @@
+import torch
 from torch.utils import model_zoo
 from torchvision.models.resnet import ResNet, model_urls as resnet_urls, BasicBlock, Bottleneck
 from mtdp.components import FeaturesInterface
@@ -38,7 +39,7 @@ def build_resnet(pretrained=None, arch="resnet50", model_class=NoHeadResNet, **k
         "resnet34": [BasicBlock, [3, 4, 6, 3]],
         "resnet50": [Bottleneck, [3, 4, 6, 3]],
         "resnet101": [Bottleneck, [3, 4, 23, 3]],
-        "resnet152":  [Bottleneck, [3, 8, 36, 3]]
+        "resnet152": [Bottleneck, [3, 8, 36, 3]]
     }
     model = model_class(*params[arch], **kwargs)
     if isinstance(pretrained, str):
@@ -49,7 +50,10 @@ def build_resnet(pretrained=None, arch="resnet50", model_class=NoHeadResNet, **k
             if arch not in MTDP_URLS:
                 raise ValueError("No pretrained weights for multi task pretraining with architecture '{}'".format(arch))
             url, filename = MTDP_URLS[arch]
-            state_dict = load_dox_url(url, filename, map_location="cpu")
+            if kwargs.get("encoder_path"):
+                state_dict = torch.load(kwargs['encoder_path'])
+            else:
+                state_dict = load_dox_url(url, filename, map_location="cpu")
             state_dict = clean_state_dict(state_dict, prefix="features.", filter=lambda k: not k.startswith("heads."))
         else:
             raise ValueError("Unknown pre-training source")

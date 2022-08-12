@@ -1,12 +1,14 @@
 import re
 
+import torch
 from torch.utils import model_zoo
 from torchvision.models.densenet import DenseNet, model_urls as densenet_urls
 from mtdp.components import FeaturesInterface
 from mtdp.models._util import load_dox_url, clean_state_dict
 
 MTDP_URLS = {
-    "densenet121": ("https://dox.uliege.be/index.php/s/G72InP4xmJvOrVp/download", "densenet121-mh-best-191205-141200.pth")
+    "densenet121": (
+    "https://dox.uliege.be/index.php/s/G72InP4xmJvOrVp/download", "densenet121-mh-best-191205-141200.pth")
 }
 
 
@@ -55,7 +57,10 @@ def build_densenet(pretrained=False, arch="densenet201", model_class=NoHeadDense
             if arch not in MTDP_URLS:
                 raise ValueError("No pretrained weights for multi task pretraining with architecture '{}'".format(arch))
             url, filename = MTDP_URLS[arch]
-            state_dict = load_dox_url(url, filename, map_location="cpu")
+            if kwargs.get("encoder_path"):
+                state_dict = torch.load(kwargs['encoder_path'])
+            else:
+                state_dict = load_dox_url(url, filename, map_location="cpu")
             state_dict = clean_state_dict(state_dict, prefix="features.", filter=lambda k: not k.startswith("heads."))
         else:
             raise ValueError("Unknown pre-training source")
