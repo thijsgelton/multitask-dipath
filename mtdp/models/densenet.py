@@ -8,7 +8,7 @@ from mtdp.models._util import load_dox_url, clean_state_dict
 
 MTDP_URLS = {
     "densenet121": (
-    "https://dox.uliege.be/index.php/s/G72InP4xmJvOrVp/download", "densenet121-mh-best-191205-141200.pth")
+        "https://dox.uliege.be/index.php/s/G72InP4xmJvOrVp/download", "densenet121-mh-best-191205-141200.pth")
 }
 
 
@@ -20,7 +20,7 @@ class NoHeadDenseNet(DenseNet, FeaturesInterface):
         return self.features[-1].num_features
 
 
-def build_densenet(pretrained=False, arch="densenet201", model_class=NoHeadDenseNet, **kwargs):
+def build_densenet(pretrained=False, arch="densenet201", model_class=NoHeadDenseNet, model_path=None, **kwargs):
     r"""Densenet-XXX model from
     `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`_
 
@@ -57,8 +57,8 @@ def build_densenet(pretrained=False, arch="densenet201", model_class=NoHeadDense
             if arch not in MTDP_URLS:
                 raise ValueError("No pretrained weights for multi task pretraining with architecture '{}'".format(arch))
             url, filename = MTDP_URLS[arch]
-            if kwargs.get("encoder_path"):
-                state_dict = torch.load(kwargs['encoder_path'])
+            if model_path:
+                state_dict = torch.load(model_path)
             else:
                 state_dict = load_dox_url(url, filename, map_location="cpu")
             state_dict = clean_state_dict(state_dict, prefix="features.", filter=lambda k: not k.startswith("heads."))

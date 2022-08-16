@@ -25,7 +25,7 @@ class NoHeadResNet(ResNet, FeaturesInterface):
         return [b for b in list(self.layer4[-1].children()) if hasattr(b, 'num_features')][-1].num_features
 
 
-def build_resnet(pretrained=None, arch="resnet50", model_class=NoHeadResNet, **kwargs):
+def build_resnet(pretrained=None, arch="resnet50", model_class=NoHeadResNet, model_path=None, **kwargs):
     """Constructs a ResNet-18 model.
 
     Args:
@@ -50,8 +50,8 @@ def build_resnet(pretrained=None, arch="resnet50", model_class=NoHeadResNet, **k
             if arch not in MTDP_URLS:
                 raise ValueError("No pretrained weights for multi task pretraining with architecture '{}'".format(arch))
             url, filename = MTDP_URLS[arch]
-            if kwargs.get("encoder_path"):
-                state_dict = torch.load(kwargs['encoder_path'])
+            if model_path:
+                state_dict = torch.load(model_path)
             else:
                 state_dict = load_dox_url(url, filename, map_location="cpu")
             state_dict = clean_state_dict(state_dict, prefix="features.", filter=lambda k: not k.startswith("heads."))
